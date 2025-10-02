@@ -13,22 +13,6 @@ env:
 on:
   workflow_dispatch:
     inputs:
-      lz4k_enable:
-        description: '是否安装 LZ4K 补丁'
-        required: true
-        type: choice
-        default: 'false'
-        options:
-          - 'true'
-          - 'false'
-      scx_enable:
-        description: '是否安装风驰内核驱动'
-        required: true
-        type: choice
-        default: 'false'
-        options:
-          - 'true'
-          - 'false'
       kernel_suffix:
         description: '内核后缀(留空默认,开头别加连字符)'
         required: false
@@ -84,7 +68,7 @@ jobs:
             sed -i 's/ -dirty//g' "$f"
             sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' "$f"
           done
-      - name: 添加 SukiSU-Ultra
+      - name: 添加 ksu
         id: ksu_version
         run: |
           cd kernel_workspace
@@ -96,7 +80,7 @@ jobs:
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
           cd ..
-      - name: 应用 SUSFS 修补程序 SukiSU-Ultra
+      - name: 应用 SUSFS 修补程序
         run: |
           cd kernel_workspace
           git clone https://github.com/ShirkNeko/susfs4ksu.git -b gki-${{ env.ANDROID_VERSION }}-${{ env.KERNEL_VERSION }}
@@ -113,16 +97,6 @@ jobs:
           cd kernel_workspace/common
           cp ../SukiSU_patch/69_hide_stuff.patch ./
           patch -p1 < 69_hide_stuff.patch
-      - name: 应用 lz4k 补丁（辅助zram）
-        run: |
-          if [[ "${{ github.event.inputs.lz4k_enable }}" == "true" ]]; then
-            cd kernel_workspace/common
-            cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./include/linux/
-            cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./lib
-            cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./crypto
-            cp ../SukiSU_patch/other/zram/zram_patch/${{ env.KERNEL_VERSION }}/lz4kd.patch ./
-            patch -p1 -F 3 < lz4kd.patch || true
-          fi
           
       - name: 添加 SUSFS 配置设置
         run: |
@@ -177,6 +151,7 @@ jobs:
           export KBUILD_BUILD_USER=XinRan
           export KBUILD_BUILD_HOST=只爱自己
           export LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0
+          export KCONFIG_CONFIG=vendor/diting_defconfig
           BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh || echo "完毕"
          
       - name: 应用patch_linux并修补内核（
