@@ -71,8 +71,7 @@ jobs:
       - name: 添加 ksu
         id: ksu_version
         run: |
-          cd kernel_workspace
-          sed -i "\$s|echo \"\\\$res\"|echo \"-Xinran_StarBai-diting\"|" ./scripts/setlocalversion
+          cd kernel_workspace/common
           rm -rf KernelSU
           curl -LSs "https://raw.githubusercontent.com/Winkmoon/KernelSU-Next/next/kernel/setup.sh" | bash -s next
           cd KernelSU-Next
