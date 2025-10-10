@@ -76,7 +76,7 @@ jobs:
            cp ./susfs4ksu/kernel_patches/fs/* ./common/fs/
            cp ./susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
            
-           Apply patches
+           #Apply patches
            cd ./KernelSU-Next
            cp ../oppo_oplus_realme_sm8650/patches/0001-kernel-patch-susfs-v1.5.7-to-KernelSU-Next-v1.0.7.patch ./
            patch -p1 --forward --fuzz=3 < 0001-kernel-patch-susfs-v1.5.7-to-KernelSU-Next-v1.0.7.patch || true
