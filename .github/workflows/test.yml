@@ -65,7 +65,8 @@ jobs:
           wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang+llvm-12.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz
           mkdir xinran
           tar -xvf clang+llvm-12.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz -C xinran --strip-components=1
-          sudo cd ./xinran
+          ls
+          cd ./xinran
           CLANG_PATH=$(pwd)/bin
           export PATH=$CLANG_PATH:$PATH
           clang --version
