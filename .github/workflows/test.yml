@@ -54,23 +54,6 @@ jobs:
           done
           cd ..
 
-
-      - name: 安装clang12
-        run: |
-          cd kernel_workspace
-          sudo apt update
-          sudo apt-get install gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf -y
-          sudo apt install wget
-          sudo apt-get install xz-utils
-          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang+llvm-12.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz
-          mkdir xinran
-          tar -xvf clang+llvm-12.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz -C xinran --strip-components=1
-          ls
-          cd ./xinran
-          CLANG_PATH=$(pwd)/bin
-          export PATH=$CLANG_PATH:$PATH
-          clang --version
-          cd ..
           
 
 
@@ -153,14 +136,28 @@ jobs:
           export CROSS_COMPILE=aarch64-linux-gnu-
           export CROSS_COMPILE_ARM32=arm-linux-gnueabihf-
            
-      - name: 构建内核
+      - name: 安装工具链并构建内核
         run: |
           cd kernel_workspace
+          sudo apt update
+          sudo apt-get install gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf -y
+          sudo apt install wget
+          sudo apt-get install xz-utils
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/clang+llvm-12.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz
+          mkdir xinran
+          tar -xvf clang+llvm-12.0.1-x86_64-linux-gnu-ubuntu-16.04.tar.xz -C xinran --strip-components=1
+          ls
+          cd ./xinran
+          CLANG_PATH=$(pwd)/bin
+          export PATH=$CLANG_PATH:$PATH
+          clang --version
+          ld.lld --version
+          cd ..
           cd common
           export KBUILD_BUILD_USER=XinRan♡
           export KBUILD_BUILD_HOST=Bai
           export LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 KMI_SYMBOL_LIST_STRICT_MODE=0
-          make -j$(nproc --all) LLVM=-20 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabihf- CC=clang LD=ld.lld HOSTCC=clang HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error vendor/diting_defconfig all
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabihf- CC=clang LD=ld.lld HOSTCC=clang HOSTLD=ld.lld O=out KCFLAGS+=-Wno-error vendor/diting_defconfig all
          
       - name: 应用patch_linux并修补内核
         run: |
